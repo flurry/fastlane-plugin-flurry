@@ -1,0 +1,10 @@
+{
+  "data": {
+    "type":"upload",
+    "id":"88888888",
+    "attributes":{
+      "failureReason":null,
+      "uploadStatus":"COMPLETED"
+    }
+  }
+}

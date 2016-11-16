@@ -1,0 +1,25 @@
+{
+  "data": {
+    "type": "upload",
+    "id": "88888888",
+    "attributes": {
+      "contentLength": 1000,
+      "creationDate": 1478545649999,
+      "failureReason": null,
+      "modifiedDate": 1478545649999,
+      "uploadStatus": "CREATED",
+      "uploadType": "IOS"
+    },
+    "relationships": {
+      "project": {
+        "data": {
+          "type": "project",
+          "id": "99999999"
+        }
+      },
+      "uploadArtifacts": {
+        "data": []
+      }
+    }
+  }
+}

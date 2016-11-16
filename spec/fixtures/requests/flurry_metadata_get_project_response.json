@@ -1,0 +1,11 @@
+{
+  "data": [
+    {
+      "type": "project",
+      "id": "99999999",
+      "attributes": {
+        "apiKey": "good_api_key"
+      }
+    }
+  ]
+}
