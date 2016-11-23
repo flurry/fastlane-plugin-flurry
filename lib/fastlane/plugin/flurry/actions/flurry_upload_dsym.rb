@@ -18,19 +18,28 @@ module Fastlane
         api_key = params[:api_key]
         auth_token = params[:auth_token]
         timeout_in_s = params[:timeout_in_s]
-        # Params - dSYM
-        dsym_path = params[:dsym_path]
         project_id = find_project(api_key, auth_token)
 
-        if dsym_path.end_with?('.zip')
-          UI.message("Extracting '#{dsym_path}'...")
-          dsym_path = unzip_file(dsym_path)
+        # Params - dSYM
+        dsym_path = params[:dsym_paths] || []
+        dsym_path += [params[:dsym_path]]
+
+        if dsym_path.size == 0
+          UI.user_error! "Couldn't find any DSYMs. Please pass them using the dsym_path option)"
         end
 
-        tar_zip_file = tar_zip_file(dsym_path)
-        upload_id = create_upload(tar_zip_file.size, project_id, auth_token)
-        send_to_upload_service(tar_zip_file.path, project_id, upload_id, auth_token)
-        check_upload_status(project_id, upload_id, auth_token, timeout_in_s)
+        dsym_path.compact.map do | single_dsym_path |
+          if single_dsym_path.end_with?('.zip')
+            UI.message("Extracting '#{single_dsym_path}'...")
+            single_dsym_path = unzip_file(single_dsym_path)
+          end
+
+          tar_zip_file = tar_zip_file(single_dsym_path)
+          upload_id = create_upload(tar_zip_file.size, project_id, auth_token)
+          send_to_upload_service(tar_zip_file.path, project_id, upload_id, auth_token)
+          check_upload_status(project_id, upload_id, auth_token, timeout_in_s)
+        end
+
         UI.message "Successfully Uploaded the provided dSYMs to Flurry."
       end
 
@@ -182,6 +191,12 @@ module Fastlane
                                            UI.user_error!("Couldn't find file at path '#{File.expand_path(value)}'") unless File.exist?(value)
                                            UI.user_error!('Symbolication file needs to be dSYM or zip') unless value.end_with?('.dSYM', '.zip')
                                          end),
+            FastlaneCore::ConfigItem.new(key: :dsym_paths,
+                                         env_name: 'FLURRY_DSYM_PATHS',
+                                         description: 'Path to an array of your symbols file. For iOS and Mac provide path to app.dSYM.zip',
+                                         default_value: Actions.lane_context[SharedValues::DSYM_PATHS],
+                                         is_string: false,
+                                         optional: true),
             FastlaneCore::ConfigItem.new(key: :timeout_in_s,
                                          env_name: 'TIMEOUT_IN_S',
                                          description: 'Upload Timeout in Seconds',
