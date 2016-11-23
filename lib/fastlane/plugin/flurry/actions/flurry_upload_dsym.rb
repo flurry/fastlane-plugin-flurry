@@ -21,14 +21,15 @@ module Fastlane
         project_id = find_project(api_key, auth_token)
 
         # Params - dSYM
-        dsym_path = params[:dsym_paths] || []
-        dsym_path += [params[:dsym_path]]
+        dsym_paths = []
+        dsym_paths += [params[:dsym_path]] if params[:dsym_path]
+        dsym_paths += params[:dsym_paths] if params[:dsym_paths]
 
-        if dsym_path.size == 0
+        if dsym_paths.count == 0
           UI.user_error! "Couldn't find any DSYMs. Please pass them using the dsym_path option)"
         end
 
-        dsym_path.compact.map do | single_dsym_path |
+        dsym_paths.compact.map do | single_dsym_path |
           if single_dsym_path.end_with?('.zip')
             UI.message("Extracting '#{single_dsym_path}'...")
             single_dsym_path = unzip_file(single_dsym_path)
@@ -187,6 +188,7 @@ module Fastlane
                                          env_name: 'FLURRY_DSYM_PATH',
                                          description: 'Path to the DSYM file to upload',
                                          default_value: Actions.lane_context[SharedValues::DSYM_OUTPUT_PATH],
+                                         optional: true,
                                          verify_block: proc do |value|
                                            UI.user_error!("Couldn't find file at path '#{File.expand_path(value)}'") unless File.exist?(value)
                                            UI.user_error!('Symbolication file needs to be dSYM or zip') unless value.end_with?('.dSYM', '.zip')
